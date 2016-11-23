@@ -12,17 +12,16 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     /** Sirka okna */
-    private static final int WIDTH = 1024;
+    private static final int WIDTH = 800;
     /** Vyska okna */
-    private static final int HEIGHT = 768;
+    private static final int HEIGHT = 600;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("UFO Medical");
+        primaryStage.setTitle("SeamCarving - Petr Lukašík - PRO");
         primaryStage.setScene(new Scene(root, WIDTH, HEIGHT));
-        primaryStage.setMaximized(true);
         primaryStage.show();
     }
 

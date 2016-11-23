@@ -25,7 +25,7 @@ public class SeamCarving {
      */
     public BufferedImage gradientFilter (BufferedImage img){
         int type = img.getType();
-        System.out.println("image type is" + type);
+        System.out.println("image type is " + type);
         int width = img.getWidth();
         int height = img.getHeight();
         BufferedImage temp_img1 = new BufferedImage(width, height, type);
