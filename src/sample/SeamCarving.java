@@ -7,10 +7,6 @@ import java.awt.image.*;
  * Created by Lukado on 23. 11. 2016.
  */
 public class SeamCarving {
-    /**
-     * This method convert the color image into grayscale image
-     * @return BufferedImage  --> img
-     */
     public BufferedImage grayOut(BufferedImage img) {
         ColorConvertOp colorConvert = new ColorConvertOp(ColorSpace
                 .getInstance(ColorSpace.CS_GRAY), null);
@@ -19,13 +15,8 @@ public class SeamCarving {
         return img;
     }
 
-    /**
-     * This method get the energy map of input image
-     * @return BufferedImage  --> output_img
-     */
     public BufferedImage gradientFilter (BufferedImage img){
         int type = img.getType();
-        System.out.println("image type is " + type);
         int width = img.getWidth();
         int height = img.getHeight();
         BufferedImage temp_img1 = new BufferedImage(width, height, type);
@@ -58,10 +49,6 @@ public class SeamCarving {
         return output_img;
     }
 
-    /**
-     * This method remove the path from input image
-     * @return BufferedImage  --> removePathImg
-     */
     public BufferedImage removePathFromImage(BufferedImage img, int[] path){
         int type = img.getType();
         int width = img.getWidth();
@@ -73,12 +60,12 @@ public class SeamCarving {
         for (int b = 0; b < band; ++b){
             for (int y = 0; y < height; ++y){
                 for (int x = 0; x <= path[y]-2; ++x){
-                    double temp = 0.0;
+                    double temp;
                     temp = img.getRaster().getSample(x, y, b);
                     raster.setSample(x, y, b, Math.round(temp));
                 }
                 for (int x = path[y]-1; x < width-1; ++x){
-                    double temp = 0.0;
+                    double temp;
                     temp = img.getRaster().getSample(x+1, y, b);
                     raster.setSample(x, y, b, Math.round(temp));
                 }
@@ -86,10 +73,8 @@ public class SeamCarving {
         }
         return removePathImg;
     }
-    /**
-     * This method remove the path from energy array
-     * @return double[][]  --> new_cumulativeEnergyArray
-     */
+
+
     public double[][] removePathEnergyArray(double[][] cumulativeEnergyArray, int[] path){
         int width = cumulativeEnergyArray[0].length;
         int height = cumulativeEnergyArray.length;
@@ -105,10 +90,7 @@ public class SeamCarving {
         return new_cumulativeEnergyArray;
     }
 
-    /**
-     * This method calculate the cumulative energy array
-     * @return double[][]  --> cumulative_energy_array
-     */
+
     public double[][] getCumulativeEnergyArray (BufferedImage img){
         int width = img.getWidth();
         int height = img.getHeight();
@@ -122,7 +104,7 @@ public class SeamCarving {
 
         for (int y = 1; y < height; ++y){
             for (int x = 1; x < width-1; ++x){
-                double temp = 0.0;
+                double temp;
                 double tempArray3[] = new double[3];
                 tempArray3[0] = cumulative_energy_array[y-1][x-1];
                 tempArray3[1] = cumulative_energy_array[y-1][x];
@@ -134,11 +116,7 @@ public class SeamCarving {
         return cumulative_energy_array;
     }
 
-    /**
-     * This method find the minimum cost path from
-     * cumulative energy array
-     * @return int[]  --> path
-     */
+
     public int[] findPath (double[][] cumulativeEnergyArray){
         int width = cumulativeEnergyArray[0].length;
         int height = cumulativeEnergyArray.length;
@@ -151,7 +129,6 @@ public class SeamCarving {
         }
 
         int ind_bot = getMinIndex(tempArray)+5;
-        System.out.println("\nThe bottom index is: "+ind_bot);
         path[height-1] = ind_bot;
 
         int ind_temp = 0;
@@ -172,11 +149,6 @@ public class SeamCarving {
         return path;
     }
 
-    /**
-     * This method enlarge the width of energy image
-     * to prevent the boundary effect from convolution
-     * @return enlarge (width) image --> enlarge_energy_img
-     */
     public BufferedImage enlargeEnergy (BufferedImage img){
         int type = img.getType();
         int width = img.getWidth();
@@ -201,11 +173,7 @@ public class SeamCarving {
         return enlarge_energy_img;
     }
 
-    /**
-     * This method get the index of min element in input array
-     * @return int  --> minIndex
-     */
-    public static int getMinIndex(double[] numbers){
+    private static int getMinIndex(double[] numbers){
         double minValue = numbers[0];
         int minIndex = 0;
         for(int i=0;i<numbers.length;i++){
@@ -217,15 +185,11 @@ public class SeamCarving {
         return minIndex;
     }
 
-    /**
-     * This method get the min value in input array
-     * @return double  --> minValue
-     */
-    public static double getMinValue(double[] numbers){
+    private static double getMinValue(double[] numbers){
         double minValue = numbers[0];
-        for(int i=0;i<numbers.length;i++){
-            if(numbers[i] < minValue){
-                minValue = numbers[i];
+        for (double number : numbers) {
+            if (number < minValue) {
+                minValue = number;
             }
         }
         return minValue;
