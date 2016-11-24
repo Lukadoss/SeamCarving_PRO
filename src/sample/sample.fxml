@@ -33,7 +33,7 @@
                </StackPane.margin>
             </Button>
             <Label text="Zadejte počet žil pro zmenšení obrázku" textAlignment="CENTER" wrapText="true" StackPane.alignment="TOP_CENTER" />
-            <TextField alignment="CENTER" text="50" StackPane.alignment="TOP_CENTER">
+            <TextField fx:id="seams" alignment="CENTER" text="50" StackPane.alignment="TOP_CENTER">
                <StackPane.margin>
                   <Insets top="60.0" />
                </StackPane.margin>
@@ -65,11 +65,27 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ImageView fx:id="pic1" fitHeight="180.0" fitWidth="250" pickOnBounds="true" preserveRatio="true" nodeOrientation="INHERIT" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-            <ImageView fx:id="pic2" fitHeight="180.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-            <ImageView fx:id="pic3" fitHeight="180.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-            <ImageView fx:id="pic4" fitHeight="180.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-         </children>
+            <ImageView fx:id="pic1" fitHeight="180.0" fitWidth="250" pickOnBounds="true" preserveRatio="true" nodeOrientation="INHERIT" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" onMousePressed="#openSource">
+             <cursor>
+                 <Cursor fx:constant="HAND" />
+             </cursor>
+             </ImageView>
+             <ImageView fx:id="pic2" fitHeight="180.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" onMousePressed="#openEnergy">
+             <cursor>
+                 <Cursor fx:constant="HAND" />
+             </cursor>
+             </ImageView>
+                 <ImageView fx:id="pic3" fitHeight="180.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" onMousePressed="#openSeam">
+              <cursor>
+                  <Cursor fx:constant="HAND" />
+              </cursor>
+              </ImageView>
+                  <ImageView fx:id="pic4" fitHeight="180.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" onMousePressed="#openResult">
+               <cursor>
+                   <Cursor fx:constant="HAND" />
+               </cursor>
+                  </ImageView>
+   </children>
          <BorderPane.margin>
             <Insets left="30.0" />
          </BorderPane.margin>

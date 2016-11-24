@@ -1,7 +1,5 @@
 package sample;
 
-import javafx.scene.image.Image;
-
 import java.awt.image.BufferedImage;
 
 /**
@@ -12,10 +10,9 @@ public class Processor {
     private String seamImageFilePath = "img/seam.png";
     private String outputImageFilePath = "img/result.png";
 
-    public Processor(String rawImageFilePath) {
+    public Processor(String rawImageFilePath, int N) {
         SeamCarving sc = new SeamCarving();
         ImageLoader il = new ImageLoader();
-        int N = 50;
 
         BufferedImage rawImage = il.readImage(rawImageFilePath);
 
@@ -25,6 +22,8 @@ public class Processor {
 
         BufferedImage energyImage = il.readImage(energyImageFilePath);
         BufferedImage enlargeEnergyImg = sc.enlargeEnergy(energyImage);
+        il.writeImage(enlargeEnergyImg, seamImageFilePath, "jpg");
+
         double[][] cumulativeEnergyArray = sc.getCumulativeEnergyArray(enlargeEnergyImg);
         rawImage = il.readImage(rawImageFilePath);
 
@@ -39,15 +38,15 @@ public class Processor {
         il.writeImage(removePathImg, outputImageFilePath, "jpg");
     }
 
-    Image getEnergyImg(){
-        return new Image("file:"+energyImageFilePath);
+    String getEnergyImg(){
+        return energyImageFilePath;
     }
 
-    Image getSeamImg(){
-        return new Image("file:"+seamImageFilePath);
+    String getSeamImg(){
+        return seamImageFilePath;
     }
 
-    Image getOutputImg(){
-        return new Image("file:"+outputImageFilePath);
+    String getOutputImg(){
+        return outputImageFilePath;
     }
 }
