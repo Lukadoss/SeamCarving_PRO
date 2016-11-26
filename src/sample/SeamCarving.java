@@ -11,6 +11,7 @@ import java.util.Comparator;
 class SeamCarving{
     // Tresholding value (1-255)
     private static final double DIFF = 200;
+    private static final double ALPHA = 2;
 
     BufferedImage grayOut(BufferedImage img) {
         ColorConvertOp colorConvert = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
@@ -92,13 +93,13 @@ class SeamCarving{
         for (int b = 0; b < band; ++b){
             for (int y = 0; y < height; ++y){
                 for (int x = 0; x <= path[y]-2; ++x){
-                    double temp;
-                    temp = img.getRaster().getSample(x, y, b);
-                    raster.setSample(x, y, b, Math.round(temp));
+                    double temp = img.getRaster().getSample(x, y, b);
+                    raster.setSample(x, y, b, temp);
                 }
                 for (int x = path[y]-1; x < width-1; ++x){
                     double temp;
-                    temp = img.getRaster().getSample(x+1, y, b);
+                    if (x >= path[y] && x<= path[y]+2) temp = (img.getRaster().getSample(x+1, y, b)+img.getRaster().getSample(x, y, b))/2.0;
+                    else temp = img.getRaster().getSample(x+1, y, b);
                     raster.setSample(x, y, b, Math.round(temp));
                 }
             }
@@ -171,10 +172,10 @@ class SeamCarving{
                 tempArray2[0] = cumulativeEnergyArray[i - 1][path[i] - 1];
                 tempArray2[1] = cumulativeEnergyArray[i - 1][path[i]];
                 tempArray2[2] = cumulativeEnergyArray[i - 1][path[i] + 1];
-                if (i != height - 1 && Math.abs(getMinValue(tempArray2) - tmp) > DIFF && Math.abs(getMinValue(tempArray2) - tmp) != 255) {
+                if (i != height - 1 && Math.abs(getMinValue(tempArray2) - tmp) > DIFF && Math.abs(getMinValue(tempArray2) - tmp) <= 250) {
                     yolo = true;
                     x++;
-                    if (x>width/2){
+                    if (x>(width/ALPHA)){
                         return new int[1];
                     }
                     break;
