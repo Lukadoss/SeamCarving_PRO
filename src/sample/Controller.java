@@ -2,6 +2,7 @@ package sample;
 
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -17,21 +18,28 @@ import java.io.IOException;
 /**
  * Created by Lukado on 23. 11. 2016.
  */
-public class Controller {
+public class Controller{
     public BorderPane mainStage;
     public Button picBut;
     public ImageView pic1, pic2, pic3, pic4;
     public TextField seams;
+    public Label nope;
     private String filePath;
     private Desktop desktop = Desktop.getDesktop();
     private Processor prcs;
 
     public void solve(ActionEvent actionEvent) {
-
         if (filePath != null && isParsable(seams.getText())) {
             prcs = new Processor(filePath, Integer.parseInt(seams.getText()));
             pic2.setImage(new Image("file:" + prcs.getEnergyImg()));
-            pic3.setImage(new Image("file:" + prcs.getSeamImg()));
+            if (prcs.getNope()) {
+                pic3.setImage(new Image("file:" + prcs.getSeamImg()));
+                nope.setVisible(false);
+            }else {
+                pic3.setImage(null);
+                nope.setText("Algoritmus byl ukončen po "+prcs.getIterNum()+" iteracích");
+                nope.setVisible(true);
+            }
             pic4.setImage(new Image("file:" + prcs.getOutputImg()));
         }
     }
@@ -54,6 +62,10 @@ public class Controller {
             picBut.setText(file.getName());
             pic1.setImage(new Image(file.toURI().toString()));
             filePath = file.getPath();
+            pic2.setImage(null);
+            pic3.setImage(null);
+            pic4.setImage(null);
+            nope.setVisible(false);
         }
 
     }
@@ -97,7 +109,7 @@ public class Controller {
         }
     }
 
-    public static boolean isParsable(String input) {
+    private static boolean isParsable(String input) {
         boolean parsable = true;
         try {
             Integer.parseInt(input);

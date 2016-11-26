@@ -5,15 +5,16 @@ import java.awt.image.BufferedImage;
 /**
  * Created by Lukado on 23. 11. 2016.
  */
-public class Processor {
+class Processor {
     private String energyImageFilePath = "img/energy.png";
     private String seamImageFilePath = "img/seam.png";
     private String outputImageFilePath = "img/result.png";
+    private boolean nope;
+    private int X;
 
-    public Processor(String rawImageFilePath, int N) {
+    Processor(String rawImageFilePath, int N) {
         SeamCarving sc = new SeamCarving();
         ImageLoader il = new ImageLoader();
-
         BufferedImage rawImage = il.readImage(rawImageFilePath);
 
         BufferedImage grayedOut = sc.grayOut(rawImage);
@@ -22,20 +23,35 @@ public class Processor {
 
         BufferedImage energyImage = il.readImage(energyImageFilePath);
         BufferedImage enlargeEnergyImg = sc.enlargeEnergy(energyImage);
-        il.writeImage(enlargeEnergyImg, seamImageFilePath, "jpg");
 
         double[][] cumulativeEnergyArray = sc.getCumulativeEnergyArray(enlargeEnergyImg);
         rawImage = il.readImage(rawImageFilePath);
 
-        double[][] new_cumulativeEnergyArray = cumulativeEnergyArray;
         BufferedImage removePathImg = rawImage;
+        int paths[][] = new int[N][rawImage.getHeight()];
+        nope = true;
         for (int n = 0; n < N; ++n){
-            int[] path  = sc.findPath(new_cumulativeEnergyArray);
-            new_cumulativeEnergyArray = sc.removePathEnergyArray(new_cumulativeEnergyArray, path);
+            int[] path  = sc.findPath(cumulativeEnergyArray);
+            if (path.length == 1) {
+                nope = false;
+                X = n;
+                break;
+            }
+            cumulativeEnergyArray = sc.removePathEnergyArray(cumulativeEnergyArray, path);
             removePathImg = sc.removePathFromImage(removePathImg, path);
+            paths = sc.writePaths(path, paths, n);
         }
-
+        if (nope) {
+            BufferedImage seamsPathImg = sc.writePathsToImage(grayedOut, removePathImg, paths);
+            il.writeImage(seamsPathImg, seamImageFilePath, "jpg");
+        }
         il.writeImage(removePathImg, outputImageFilePath, "jpg");
+    }
+
+    int getIterNum(){ return X;}
+
+    boolean getNope(){
+        return nope;
     }
 
     String getEnergyImg(){

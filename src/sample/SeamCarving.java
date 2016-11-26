@@ -2,20 +2,24 @@ package sample;
 
 import java.awt.color.ColorSpace;
 import java.awt.image.*;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Created by Lukado on 23. 11. 2016.
  */
-public class SeamCarving {
-    public BufferedImage grayOut(BufferedImage img) {
-        ColorConvertOp colorConvert = new ColorConvertOp(ColorSpace
-                .getInstance(ColorSpace.CS_GRAY), null);
+class SeamCarving{
+    // Tresholding value (1-255)
+    private static final double DIFF = 200;
+
+    BufferedImage grayOut(BufferedImage img) {
+        ColorConvertOp colorConvert = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
         colorConvert.filter(img, img);
 
         return img;
     }
 
-    public BufferedImage gradientFilter (BufferedImage img){
+    BufferedImage gradientFilter(BufferedImage img){
         int type = img.getType();
         int width = img.getWidth();
         int height = img.getHeight();
@@ -35,12 +39,11 @@ public class SeamCarving {
         ConvolveOp convolve_h = new ConvolveOp(kernel_h);
         convolve_v.filter(img, temp_img1);
         convolve_h.filter(img, temp_img2);
-
         WritableRaster raster = output_img.getRaster();
 
         for (int y = 0; y < height; ++y){
             for (int x = 0; x < width; ++x){
-                float sum = 0.0f;
+                float sum;
                 sum = (   Math.abs(temp_img1.getRaster().getSample(x, y, 0))
                         + Math.abs(temp_img2.getRaster().getSample(x, y, 0)) );
                 raster.setSample(x, y, 0, Math.round(sum));
@@ -49,7 +52,36 @@ public class SeamCarving {
         return output_img;
     }
 
-    public BufferedImage removePathFromImage(BufferedImage img, int[] path){
+    int[][] writePaths(int[] path, int[][] paths, int n){
+        System.arraycopy(path, 0, paths[n], 0, path.length);
+        return paths;
+    }
+
+    BufferedImage writePathsToImage(BufferedImage origin, BufferedImage img, int[][] paths) {
+        int width = origin.getWidth();
+        int height = origin.getHeight();
+        BufferedImage seamImg = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+        WritableRaster raster = seamImg.getRaster();
+
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < img.getWidth(); ++x) {
+                    double temp = img.getRaster().getSample(x, y, 0);
+                    raster.setSample(x, y, 0, Math.round(temp));
+                }
+            }
+            for (int i = paths.length-1; i >= 0; --i) {
+                for (int y = 0; y < height; ++y) {
+                    for (int x = width - 1; x >= paths[i][y]; x--) {
+                        double temp = seamImg.getRaster().getSample(x - 1, y, 0);
+                        raster.setSample(x, y, 0, Math.round(temp));
+                    }
+                    raster.setSample(paths[i][y], y, 0, 0);
+                }
+            }
+        return seamImg;
+    }
+
+    BufferedImage removePathFromImage(BufferedImage img, int[] path){
         int type = img.getType();
         int width = img.getWidth();
         int height = img.getHeight();
@@ -75,7 +107,7 @@ public class SeamCarving {
     }
 
 
-    public double[][] removePathEnergyArray(double[][] cumulativeEnergyArray, int[] path){
+    double[][] removePathEnergyArray(double[][] cumulativeEnergyArray, int[] path){
         int width = cumulativeEnergyArray[0].length;
         int height = cumulativeEnergyArray.length;
         double[][] new_cumulativeEnergyArray = new double[height][width-1];
@@ -91,7 +123,7 @@ public class SeamCarving {
     }
 
 
-    public double[][] getCumulativeEnergyArray (BufferedImage img){
+    double[][] getCumulativeEnergyArray(BufferedImage img){
         int width = img.getWidth();
         int height = img.getHeight();
         double[][] cumulative_energy_array = new double[height][width];
@@ -101,7 +133,6 @@ public class SeamCarving {
                 cumulative_energy_array[y][x] = (double)img.getRaster().getSample(x,y,0);
             }
         }
-
         for (int y = 1; y < height; ++y){
             for (int x = 1; x < width-1; ++x){
                 double temp;
@@ -117,7 +148,7 @@ public class SeamCarving {
     }
 
 
-    public int[] findPath (double[][] cumulativeEnergyArray){
+    int[] findPath(double[][] cumulativeEnergyArray){
         int width = cumulativeEnergyArray[0].length;
         int height = cumulativeEnergyArray.length;
         int[] path = new int[height];
@@ -128,28 +159,40 @@ public class SeamCarving {
             tempArray[x-5] = cumulativeEnergyArray[y][x];
         }
 
-        int ind_bot = getMinIndex(tempArray)+5;
-        path[height-1] = ind_bot;
-
-        int ind_temp = 0;
+        int ind_temp;
+        int x=0;
+        boolean yolo;
         double[] tempArray2 = new double[3];
-        for (int i = height-1; i > 0; --i){
-            tempArray2[0] = cumulativeEnergyArray[i-1][path[i]-1];
-            tempArray2[1] = cumulativeEnergyArray[i-1][path[i]];
-            tempArray2[2] = cumulativeEnergyArray[i-1][path[i]+1];
-            ind_temp = getMinIndex(tempArray2);
-            path[i-1] = path[i] + ind_temp - 1;
-            if (path[i-1] <= 0){
-                path[i-1] = 1;
+        do {
+            path[height-1] = getMinIndex(tempArray, x)+5;
+            double tmp=0;
+            yolo = false;
+            for (int i = height - 1; i > 0; --i) {
+                tempArray2[0] = cumulativeEnergyArray[i - 1][path[i] - 1];
+                tempArray2[1] = cumulativeEnergyArray[i - 1][path[i]];
+                tempArray2[2] = cumulativeEnergyArray[i - 1][path[i] + 1];
+                if (i != height - 1 && Math.abs(getMinValue(tempArray2) - tmp) > DIFF && Math.abs(getMinValue(tempArray2) - tmp) != 255) {
+                    yolo = true;
+                    x++;
+                    if (x>width/2){
+                        return new int[1];
+                    }
+                    break;
+                }
+                tmp = getMinValue(tempArray2);
+                ind_temp = getMinIndex(tempArray2, 0);
+                path[i - 1] = path[i] + ind_temp - 1;
+                if (path[i - 1] <= 0) {
+                    path[i - 1] = 1;
+                } else if (path[i - 1] >= width - 1) {
+                    path[i - 1] = width - 2;
+                }
             }
-            else if (path[i-1] >= width-1){
-                path[i-1] = width-2;
-            }
-        }
+        }while(yolo);
         return path;
     }
 
-    public BufferedImage enlargeEnergy (BufferedImage img){
+    BufferedImage enlargeEnergy(BufferedImage img){
         int type = img.getType();
         int width = img.getWidth();
         int height = img.getHeight();
@@ -173,16 +216,18 @@ public class SeamCarving {
         return enlarge_energy_img;
     }
 
-    private static int getMinIndex(double[] numbers){
-        double minValue = numbers[0];
-        int minIndex = 0;
-        for(int i=0;i<numbers.length;i++){
-            if(numbers[i] < minValue){
-                minValue = numbers[i];
-                minIndex = i;
-            }
+    private static int getMinIndex(double[] numbers, int n){
+        Integer[] map = new Integer[numbers.length];
+        for (int i=0;i<numbers.length;i++){
+            map[i] = i;
         }
-        return minIndex;
+        Arrays.sort(map, new Comparator<Integer>() {
+            @Override public int compare(final Integer o1, final Integer o2) {
+                return Double.compare(numbers[o1], numbers[o2]);
+            }
+        });
+
+        return map[n];
     }
 
     private static double getMinValue(double[] numbers){
