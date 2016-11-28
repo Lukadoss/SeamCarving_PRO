@@ -23,6 +23,7 @@ class ImageLoader {
                     String extension) {
         try {
             File outfile = new File(fileLocation);
+            if (!outfile.exists()) new File("img/").mkdir();
             ImageIO.write(img, extension, outfile);
         } catch (IOException e) {
             e.printStackTrace();

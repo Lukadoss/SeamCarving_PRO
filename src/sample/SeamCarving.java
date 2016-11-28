@@ -11,6 +11,7 @@ import java.util.Comparator;
 class SeamCarving{
     // Tresholding value (1-255)
     private static final double DIFF = 200;
+    // Alpha value for stopping criterium (the bigger the faster it stops)
     private static final double ALPHA = 2;
 
     BufferedImage grayOut(BufferedImage img) {

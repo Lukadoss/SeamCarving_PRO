@@ -49,7 +49,7 @@ public class Controller{
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Picture loader");
         fileChooser.setInitialDirectory(
-                new File(System.getProperty("user.home")+System.getProperty("file.separator")+"Pictures")
+                new File(System.getProperty("user.home"))
         );
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("JPG", "*.jpg"),
